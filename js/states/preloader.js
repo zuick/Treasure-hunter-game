@@ -22,7 +22,15 @@ Phaser.THPreloader = function( game ){
     }
 
     this.create = function() {
+        // scaled canvas issues
+        this.game.scaledCanvas = document.getElementById("scaledCanvas");
+        this.game.scaledContext = this.game.scaledCanvas.getContext("2d");
+        Phaser.Canvas.setSmoothingEnabled(this.game.scaledContext, false);
+        
         this.game.state.start( game.config.levels[0].name, true, true );
+    }
+    this.render = function () {
+        this.game.scaledContext.drawImage(this.game.canvas, 0, 0, this.game.config.width, this.game.config.height, 0, 0, this.game.scaledCanvas.width, this.game.scaledCanvas.height);
     }
 }
 

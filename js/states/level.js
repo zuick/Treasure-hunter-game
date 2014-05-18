@@ -4,7 +4,7 @@
 Phaser.THLevel = function( game, level ){
     this.game = game;
     this.levelName = level.name;
-
+    
     this.create = function() {
         this.game.stage.backgroundColor = '#000';
         this.game.stage.fullScreenScaleMode = Phaser.StageScaleMode.SHOW_ALL;
@@ -15,7 +15,6 @@ Phaser.THLevel = function( game, level ){
         this.setHero();
         
         this.game.camera.follow( this.hero );
-
     }
     
     this.update = function(){
@@ -48,7 +47,12 @@ Phaser.THLevel = function( game, level ){
         this.keys.cursors = this.game.input.keyboard.createCursorKeys(); 
         this.keys.fullscreen.onDown.add( function(){ this.game.stage.scale.startFullScreen(); }, this);      
     }
-
+    this.render = function () {
+        this.game.scaledContext.drawImage(this.game.canvas, 0, 0, this.game.config.width, this.game.config.height, 0, 0, this.game.scaledCanvas.width, this.game.scaledCanvas.height);
+    }
+    this.loadRender = function () {
+        this.game.scaledContext.drawImage(this.game.canvas, 0, 0, this.game.config.width, this.game.config.height, 0, 0, this.game.scaledCanvas.width, this.game.scaledCanvas.height);
+    }
 }
 
 Phaser.THLevel.prototype = Object.create( Phaser.State.prototype );
