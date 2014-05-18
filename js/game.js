@@ -33,8 +33,8 @@ jQuery(document).ready( function($){
     
     $('<canvas>').attr({
         id: "scaledCanvas",
-        width: window.innerWidth,
-        height: window.innerHeight
+        width: window.innerWidth-20,
+        height: window.innerHeight-20
     }).appendTo('#scaledWrapper');
     
     var game = new Phaser.Game( config );

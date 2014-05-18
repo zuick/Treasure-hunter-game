@@ -4,11 +4,50 @@
 Phaser.THLevel = function( game, level ){
     this.game = game;
     this.levelName = level.name;
-    
+    this.dpadCursors = {
+        up: { isDown: false },
+        down: { isDown: false },
+        left: { isDown: false },
+        right: { isDown: false }
+    };
     this.create = function() {
         this.game.stage.backgroundColor = '#000';
         this.game.stage.fullScreenScaleMode = Phaser.StageScaleMode.SHOW_ALL;
         Phaser.Canvas.setSmoothingEnabled(this.game.context, false);
+        
+        if( this.game.device.touch ){
+             // Init game controller with left thumb stick
+            GameController.init({
+                left: {
+                    type: 'dpad',
+                    dpad: {
+                        up: {
+                            touchStart: function(){ this.dpadCursors.up.isDown = true; }.bind(this),
+                            touchEnd: function(){ this.dpadCursors.up.isDown = false; }.bind(this)
+                        },
+                        down: {
+                            touchStart: function(){ this.dpadCursors.down.isDown = true; }.bind(this),
+                            touchEnd: function(){ this.dpadCursors.down.isDown = false; }.bind(this)
+                        },
+                        left: {
+                            touchStart: function(){ this.dpadCursors.left.isDown = true; }.bind(this),
+                            touchEnd: function(){ this.dpadCursors.left.isDown = false; }.bind(this)
+                        },
+                        right: {
+                            touchStart: function(){ this.dpadCursors.right.isDown = true; }.bind(this),
+                            touchEnd: function(){ this.dpadCursors.right.isDown = false; }.bind(this)
+                        }
+                    }
+                },
+                right: {
+                    // We're not using anything on the right for this demo, but you can add buttons, etc.
+                    // See https://github.com/austinhallock/html5-virtual-game-controller/ for examples.
+                    type: 'none'
+                }
+            });
+            
+            this.touch = true;
+        }
         
         this.setControls();
         this.setMap();
@@ -24,7 +63,7 @@ Phaser.THLevel = function( game, level ){
         this.hero.THUpdate( this.keys.cursors );          
         
     }
-    
+
     this.setMap = function(){
         this.map = this.game.add.tilemap( this.levelName );
         this.map.addTilesetImage('buildings', 'buildings');
@@ -44,8 +83,8 @@ Phaser.THLevel = function( game, level ){
         this.keys = {};
 
         this.keys.fullscreen = this.game.input.keyboard.addKey( Phaser.Keyboard.F);
-        this.keys.cursors = this.game.input.keyboard.createCursorKeys(); 
         this.keys.fullscreen.onDown.add( function(){ this.game.stage.scale.startFullScreen(); }, this);      
+        this.keys.cursors = ( this.touch ) ? this.dpadCursors : this.game.input.keyboard.createCursorKeys(); 
     }
     this.render = function () {
         this.game.scaledContext.drawImage(this.game.canvas, 0, 0, this.game.config.width, this.game.config.height, 0, 0, this.game.scaledCanvas.width, this.game.scaledCanvas.height);
