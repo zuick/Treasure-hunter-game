@@ -52,7 +52,7 @@ Phaser.THLevel = function( game, level ){
         this.setControls();
         this.setMap();
         this.setHero();
-        
+        this.setFollowers();
         this.game.camera.follow( this.hero );
     }
     
@@ -61,7 +61,10 @@ Phaser.THLevel = function( game, level ){
         this.game.physics.collide(this.hero, this.ground);
         
         this.hero.THUpdate( this.keys.cursors );          
-        
+        for( var i in this.followers ){
+            this.game.physics.collide(this.followers[i], this.ground);
+            this.followers[i].THUpdate();
+        }
     }
 
     this.setMap = function(){
@@ -77,6 +80,15 @@ Phaser.THLevel = function( game, level ){
     this.setHero = function(){        
         this.heroInitialXY = Phaser.TetraTools.getObjectsPositionFromMap( this.map, "characters", this.game.config.hero.tileIndex )[0];
         this.hero = Phaser.THHero( this.heroInitialXY.x * this.map.tileWidth, this.heroInitialXY.y * this.map.tileHeight, this.game );            
+    }
+    
+    this.setFollowers = function(){
+        this.followers = [];
+        for( var i = 0; i < this.game.config.followersCount; i++ ){
+            var fx = this.heroInitialXY.x * this.map.tileWidth + Math.floor( ( Math.random() * this.game.config.followersDisp - this.game.config.followersDisp / 2 ) )
+            var fy = this.heroInitialXY.y * this.map.tileHeight + Math.floor( ( Math.random() * this.game.config.followersDisp - this.game.config.followersDisp / 2 ) )
+            this.followers.push( Phaser.Follower( fx, fy, this.hero, this.game))
+        }
     }
     
     this.setControls = function(){

@@ -26,6 +26,10 @@ jQuery(document).ready( function($){
             lives: 5,
             deathTimeout: 1000,
         },
+        
+        followersCount: 10,
+        followersDisp: 20,
+        followersNear: 10
     }
     var aspect = window.innerWidth / window.innerHeight;
     config.height = Math.floor( config.width / aspect );
