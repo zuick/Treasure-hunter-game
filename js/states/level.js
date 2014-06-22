@@ -53,18 +53,39 @@ Phaser.THLevel = function( game, level ){
         this.setMap();
         this.setHero();
         this.setFollowers();
+        this.setWolfs();
         this.game.camera.follow( this.hero );
     }
     
     this.update = function(){
         // Physics
-        this.game.physics.collide(this.hero, this.ground);
+        this.game.physics.collide(this.hero, this.ground);        
+        this.hero.onUpdate( this.keys.cursors );    
         
-        this.hero.THUpdate( this.keys.cursors );          
         for( var i in this.followers ){
-            this.game.physics.collide(this.followers[i], this.ground);
-            this.followers[i].THUpdate();
+            this.game.physics.collide( this.followers[i], this.ground );
+            this.followers[i].onUpdate();
         }
+        
+        for( var i in this.wolfs ){
+            this.game.physics.collide( this.wolfs[i], this.ground );
+            this.wolfs[i].onUpdate();
+        }
+        
+        for( var i in this.followers ){
+            for( var i in this.wolfs ){
+                this.game.physics.collide( this.followers[i], this.wolfs[i], function(){
+                    this.game.world.destroy();
+                    this.game.state.start( "game-over", true, true ); 
+                    
+                    console.log("asd");return true; 
+                
+                }, null, this );
+                
+            }
+            
+        }
+        
     }
 
     this.setMap = function(){
@@ -79,15 +100,28 @@ Phaser.THLevel = function( game, level ){
        
     this.setHero = function(){        
         this.heroInitialXY = Phaser.TetraTools.getObjectsPositionFromMap( this.map, "characters", this.game.config.hero.tileIndex )[0];
-        this.hero = Phaser.THHero( this.heroInitialXY.x * this.map.tileWidth, this.heroInitialXY.y * this.map.tileHeight, this.game );            
+        this.hero = Phaser.Hero( this.heroInitialXY.x * this.map.tileWidth, this.heroInitialXY.y * this.map.tileHeight, this.game );            
+    }
+    
+    this.setWolfs = function(){
+        this.wolfs = [];
+        // wolfs that goes up/down
+        Phaser.TetraTools.getObjectsPositionFromMap( this.map, "characters", this.game.config.wolf.upTileIndex ).forEach( function( pos ){
+            this.wolfs.push( Phaser.Wolf( pos.x * this.map.tileWidth, pos.y * this.map.tileHeight, "up", this.game ) );
+        }.bind(this))
+        // wolfs that goes left/right
+        Phaser.TetraTools.getObjectsPositionFromMap( this.map, "characters", this.game.config.wolf.leftTileIndex ).forEach( function( pos ){
+            this.wolfs.push( Phaser.Wolf( pos.x * this.map.tileWidth, pos.y * this.map.tileHeight, "left", this.game ) );
+        }.bind(this))
+        
     }
     
     this.setFollowers = function(){
         this.followers = [];
-        for( var i = 0; i < this.game.config.followersCount; i++ ){
-            var fx = this.heroInitialXY.x * this.map.tileWidth + Math.floor( ( Math.random() * this.game.config.followersDisp - this.game.config.followersDisp / 2 ) )
-            var fy = this.heroInitialXY.y * this.map.tileHeight + Math.floor( ( Math.random() * this.game.config.followersDisp - this.game.config.followersDisp / 2 ) )
-            this.followers.push( Phaser.Follower( fx, fy, this.hero, this.game))
+        for( var i = 0; i < this.game.config.followers.count; i++ ){
+            var fx = this.heroInitialXY.x * this.map.tileWidth + Math.floor( ( Math.random() * this.game.config.followers.disp - this.game.config.followers.disp / 2 ) )
+            var fy = this.heroInitialXY.y * this.map.tileHeight + Math.floor( ( Math.random() * this.game.config.followers.disp - this.game.config.followers.disp / 2 ) )
+            this.followers.push( Phaser.Follower( fx, fy, this.hero, this.game ) )
         }
     }
     
@@ -97,7 +131,31 @@ Phaser.THLevel = function( game, level ){
         this.keys.fullscreen = this.game.input.keyboard.addKey( Phaser.Keyboard.F);
         this.keys.fullscreen.onDown.add( function(){ this.game.stage.scale.startFullScreen(); }, this);      
         this.keys.cursors = ( this.touch ) ? this.dpadCursors : this.game.input.keyboard.createCursorKeys(); 
+        this.keys.space = this.game.input.keyboard.addKey( Phaser.Keyboard.SPACEBAR );
+        this.keys.s = this.game.input.keyboard.addKey( Phaser.Keyboard.S );
+
+        
+        this.keys.space.onDown.add( function(){
+            this.activateFollowers();
+        }.bind(this));
+        
+        this.keys.s.onDown.add( function(){
+            this.stopFollowers();
+        }.bind(this));
     }
+    
+    this.activateFollowers = function(){
+        this.followers.forEach( function( follower ){
+            follower.go();
+        })
+    }
+    
+    this.stopFollowers = function(){
+        this.followers.forEach( function( follower ){
+            follower.stop();
+        })
+    }
+    
     this.render = function () {
         this.game.scaledContext.drawImage(this.game.canvas, 0, 0, this.game.config.width, this.game.config.height, 0, 0, this.game.scaledCanvas.width, this.game.scaledCanvas.height);
     }

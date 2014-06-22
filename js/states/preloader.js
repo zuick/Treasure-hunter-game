@@ -19,6 +19,8 @@ Phaser.THPreloader = function( game ){
             
         // load sprites
         this.game.load.spritesheet('hero', 'assets/hero.png', 8, 8);
+        this.game.load.spritesheet('follower', 'assets/follower.png', 8, 8);
+        this.game.load.spritesheet('wolf', 'assets/wolf.png', 10, 8);
     }
 
     this.create = function() {

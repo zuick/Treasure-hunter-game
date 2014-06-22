@@ -1,4 +1,4 @@
-Phaser.THHero = function( x, y, game ){
+Phaser.Hero = function( x, y, game ){
 
     var hero = game.add.sprite( x, y, game.config.hero.spritesheet );
 
@@ -19,7 +19,7 @@ Phaser.THHero = function( x, y, game ){
         this.frame = 0;
     }
     
-    hero.THUpdate = function( cursors ){
+    hero.onUpdate = function( cursors ){
         this.body.velocity.x = 0;
         this.body.velocity.y = 0;
 
